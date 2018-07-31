@@ -19,4 +19,3 @@ namespace ProteinStore.Models
 
     }
 }
-s
