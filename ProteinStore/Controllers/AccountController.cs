@@ -37,14 +37,14 @@ namespace ProteinStore.Controllers
             if (ModelState.IsValid)
             {
                 IdentityUser newUser = new IdentityUser(model.UserName);
-                IdentityResult creationResult = _signInManager.UserManager.CreateAsync(newUser).Result;
 
+                IdentityResult creationResult = this._signInManager.UserManager.CreateAsync(newUser).Result;
                 if (creationResult.Succeeded)
                 {
-                    IdentityResult passwordResult = _signInManager.UserManager.AddPasswordAsync(newUser, model.Password).Result;
+                    IdentityResult passwordResult = this._signInManager.UserManager.AddPasswordAsync(newUser, model.Password).Result;
                     if (passwordResult.Succeeded)
                     {
-                        _signInManager.SignInAsync(newUser, false).Wait();
+                        this._signInManager.SignInAsync(newUser, false).Wait();
                         return RedirectToAction("Index", "Home");
                     }
                     else
@@ -55,11 +55,16 @@ namespace ProteinStore.Controllers
                         }
                     }
                 }
-
-
-               
+                else
+                {
+                    foreach (var error in creationResult.Errors)
+                    {
+                        ModelState.AddModelError(error.Code, error.Description);
+                    }
+                }
             }
             return View();
+
         }
 
         public IActionResult SignOut()
@@ -73,31 +78,33 @@ namespace ProteinStore.Controllers
             return View();
         }
 
-
+        [HttpPost]
         public IActionResult SignIn(SignInViewModel model)
         {
             if (ModelState.IsValid)
             {
-                IdentityUser existingUser = _signInManager.UserManager.FindByNameAsync(model.UserName).Result;
-                if(existingUser != null)
+                IdentityUser existingUser = this._signInManager.UserManager.FindByNameAsync(model.UserName).Result;
+                if (existingUser != null)
                 {
-                    Microsoft.AspNetCore.Identity.SignInResult passwordResult = _signInManager.CheckPasswordSignInAsync(existingUser, model.Password, false).Result;
+                    Microsoft.AspNetCore.Identity.SignInResult passwordResult = this._signInManager.CheckPasswordSignInAsync(existingUser, model.Password, false).Result;
                     if (passwordResult.Succeeded)
                     {
-                        _signInManager.SignInAsync(existingUser, false).Wait();
+                        this._signInManager.SignInAsync(existingUser, false).Wait();
                         return RedirectToAction("Index", "Home");
                     }
                     else
                     {
-                        ModelState.AddModelError("PasswordIncorrect", "Username or Password Incorrect");
+                        ModelState.AddModelError("PasswordIncorrect", "Username or Password is incorrect.");
                     }
                 }
                 else
                 {
-                    ModelState.AddModelError("UserDoesNotExist", "Username or Password Incorrect");
+                    ModelState.AddModelError("UserDoesNotExist", "Username or Password is incorrect.");
+
                 }
             }
             return View();
+
         }
 
 
