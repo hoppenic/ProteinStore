@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ProteinStore.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
 
 namespace ProteinStore
 {
@@ -21,6 +26,9 @@ namespace ProteinStore
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<IdentityDbContext>()
+                .AddDefaultTokenProviders();
             services.AddMvc();
         }
 
@@ -37,6 +45,7 @@ namespace ProteinStore
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            app.UseAuthentication();
             app.UseStaticFiles();
 
             app.UseMvc(routes =>
